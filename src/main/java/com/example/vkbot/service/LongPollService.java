@@ -10,6 +10,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+/**
+ * Service for handling VK Long Polling.
+ * This service initializes the Long Poll server connection and continuously polls for new updates.
+ */
 @Service
 public class LongPollService {
 
@@ -27,11 +31,19 @@ public class LongPollService {
     private String key;
     private int ts;
 
+    /**
+     * Starts the Long Poll service.
+     * Initializes the Long Poll server connection and starts polling.
+     */
     public void start() {
         initialize();
         poll();
     }
 
+    /**
+     * Initializes the Long Poll server connection.
+     * Retrieves the Long Poll server URL, key, and initial timestamp.
+     */
     private void initialize() {
         String url = String.format(
                 "https://api.vk.com/method/groups.getLongPollServer?group_id=%s&access_token=%s&v=%s",
@@ -45,6 +57,10 @@ public class LongPollService {
         }
     }
 
+    /**
+     * Continuously polls the Long Poll server for new updates.
+     * Parses each event and handles messages.
+     */
     private void poll() {
         while (true) {
             String url = String.format(
@@ -60,6 +76,12 @@ public class LongPollService {
         }
     }
 
+    /**
+     * Parses the JSON response into a VkEvent object.
+     *
+     * @param jsonResponse the JSON response from the Long Poll server.
+     * @return the parsed VkEvent object.
+     */
     private VkEvent parseEvent(String jsonResponse) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -70,6 +92,11 @@ public class LongPollService {
         }
     }
 
+    /**
+     * Handles a new message event.
+     *
+     * @param vkMessage the VK message event.
+     */
     private void handleMessage(VkMessage vkMessage) {
         if ("message_new".equals(vkMessage.getType())) {
             VkMessage.MessageObject messageObject = vkMessage.getObject();
@@ -79,6 +106,12 @@ public class LongPollService {
         }
     }
 
+    /**
+     * Sends a response message to the specified peer.
+     *
+     * @param peerId  the peer ID to send the message to.
+     * @param message the message text to send.
+     */
     private void sendMessage(int peerId, String message) {
         String url = String.format(
                 "https://api.vk.com/method/messages.send?peer_id=%d&message=%s&access_token=%s&v=%s&random_id=%d",
@@ -87,10 +120,16 @@ public class LongPollService {
         restTemplate.getForObject(url, String.class);
     }
 
+    /**
+     * Represents the response from the VK Long Poll server initialization request.
+     */
     @Data
     private static class VkLongPollServerResponse {
         private LongPollServer response;
 
+        /**
+         * Represents the Long Poll server details.
+         */
         @Data
         public static class LongPollServer {
             private String key;
