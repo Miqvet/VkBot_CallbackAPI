@@ -52,8 +52,6 @@ public class LongPollService {
                     server, key, ts
             );
             String jsonResponse = restTemplate.getForObject(url, String.class);
-//            System.out.println(jsonResponse); // Вывод полного JSON ответа
-
             VkEvent event = parseEvent(jsonResponse);
             if (event != null) {
                 this.ts = event.getTs();
@@ -77,10 +75,6 @@ public class LongPollService {
             VkMessage.MessageObject messageObject = vkMessage.getObject();
             VkMessage.MessageObject.Message message = messageObject.getMessage();
             String responseMessage = "Вы сказали: " + message.getText();
-//            System.out.println("Text: " + message.getText());
-//            System.out.println("Peer ID: " + message.getPeerId());
-//            System.out.println("From ID: " + message.getFromId());
-//            System.out.println("Message ID: " + message.getId());
             sendMessage(message.getPeerId(), responseMessage);
         }
     }
@@ -93,45 +87,15 @@ public class LongPollService {
         restTemplate.getForObject(url, String.class);
     }
 
+    @Data
     private static class VkLongPollServerResponse {
         private LongPollServer response;
 
-        public LongPollServer getResponse() {
-            return response;
-        }
-
-        public void setResponse(LongPollServer response) {
-            this.response = response;
-        }
-
+        @Data
         public static class LongPollServer {
             private String key;
             private String server;
             private String ts;
-
-            public String getKey() {
-                return key;
-            }
-
-            public void setKey(String key) {
-                this.key = key;
-            }
-
-            public String getServer() {
-                return server;
-            }
-
-            public void setServer(String server) {
-                this.server = server;
-            }
-
-            public String getTs() {
-                return ts;
-            }
-
-            public void setTs(String ts) {
-                this.ts = ts;
-            }
         }
     }
 }
